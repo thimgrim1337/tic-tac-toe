@@ -16,20 +16,30 @@
   <body>
     <div class="wrapper">
       <h1>Tic Tac Toe</h1>
-      <div class="gameboard">
-        <div class="field" data-index="0"></div>
-        <div class="field" data-index="1"></div>
-        <div class="field" data-index="2"></div>
-        <div class="field" data-index="3"></div>
-        <div class="field" data-index="4"></div>
-        <div class="field" data-index="5"></div>
-        <div class="field" data-index="6"></div>
-        <div class="field" data-index="7"></div>
-        <div class="field" data-index="8"></div>
+      <div class="scoreboard">
+        <h2>Scoreboard</h2>
+        <div class="score">
+          <span>X:</span><span>1</span> <span>O:</span><span>2</span>
+        </div>
       </div>
-      <p class="turn"></p>
-      <p class="result"></p>
-      <button class="reset-btn">reset</button>
+      <div class="gameboard">
+        <div class="fields">
+          <div class="field lined thick" data-index="0"></div>
+          <div class="field lined thick" data-index="1"></div>
+          <div class="field lined thick" data-index="2"></div>
+          <div class="field lined thick" data-index="3"></div>
+          <div class="field lined thick" data-index="4"></div>
+          <div class="field lined thick" data-index="5"></div>
+          <div class="field lined thick" data-index="6"></div>
+          <div class="field lined thick" data-index="7"></div>
+          <div class="field lined thick" data-index="8"></div>
+        </div>
+        <div class="controls">
+          <p class="turn"></p>
+          <p class="result"></p>
+          <button class="reset-btn lined thick">reset</button>
+        </div>
+      </div>
     </div>
     <script src="main.js"></script>
   </body>

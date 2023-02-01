@@ -35,7 +35,7 @@ const game = (() => {
           gameboard[winConditions[i][0]] === gameboard[winConditions[i][1]] &&
           gameboard[winConditions[i][1]] === gameboard[winConditions[i][2]]
         ) {
-          console.log(`${player.sign} win`);
+          return true;
         }
       }
     }
@@ -59,7 +59,7 @@ const displayController = (() => {
     e.target.textContent = player.sign;
     e.target.removeEventListener('click', fieldClicked);
     game.updateGameboard(e.target.dataset.index, e.target.textContent);
-    game.checkWinner();
+    if (game.checkWinner() === true) showResult();
     changeSign();
   }
 
@@ -68,7 +68,15 @@ const displayController = (() => {
     turn.textContent = `${player.sign}'s turn`;
   }
 
-  function restartGame() {}
+  function showResult() {
+    result.textContent = `${player.sign} is a winner.`;
+    turn.textContent = '';
+    fields.forEach((field) => field.removeEventListener('click', fieldClicked));
+  }
+
+  function restartGame() {
+    location.reload();
+  }
 
   startGame();
 })();

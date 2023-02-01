@@ -6,26 +6,77 @@
 
 body {
   font-family: 'Permanent Marker', cursive;
+  height: 100vh;
+  display: grid;
+  align-items: center;
 }
 
 .wrapper {
-  text-align: center;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 1rem;
+  justify-items: center;
+}
+
+h1 {
+  font-size: 3rem;
 }
 
 .gameboard {
+  text-align: center;
+}
+
+.fields {
   width: 500px;
   height: 500px;
-  margin: 0 auto;
+  margin-bottom: 1rem;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  border: 2px solid black;
 }
 
 .field {
-  border: 2px solid black;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 5rem;
+}
+
+.controls > * {
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.controls .result {
+  font-size: 1.7rem;
+  color: red;
+}
+
+.controls button {
+  background: transparent;
+  padding: 0.5rem 0.5rem;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  font-family: 'Permanent Marker', cursive;
+}
+
+.controls button:hover {
+  box-shadow: 2px 8px 4px -6px hsla(0, 0%, 0%, 0.3);
+}
+
+.score {
+  text-align: center;
+  font-size: 1.3rem;
+}
+
+.lined.thick {
+  border: solid 3px #41403e;
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  border-bottom-right-radius: 225px 15px;
+  border-bottom-left-radius: 15px 255px;
+}
+
+.red {
+  color: red;
 }
