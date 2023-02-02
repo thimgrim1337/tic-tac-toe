@@ -1,11 +1,17 @@
 'use strict';
-const Player = (playerChoice) => {
-  const sign = playerChoice;
+const Player = (playerName, playerSign) => {
+  const name = playerName;
+  const sign = playerSign;
+  let wins = 0;
 
-  return { sign };
+  const getWins = () => wins;
+  const addWins = () => wins++;
+
+  return { name, sign, getWins, addWins };
 };
 
-const player = Player('X');
+const playerX = Player('Dawid', 'X');
+const playerO = Player('CPU', 'O');
 
 const game = (() => {
   const gameboard = new Array(9);
@@ -24,58 +30,83 @@ const game = (() => {
     gameboard[index] = sign;
   };
 
+  const clearGameboard = () => gameboard.fill(undefined);
+
   const checkWinner = () => {
+    let roundWon = false;
     for (let i = 0; i < winConditions.length; i++) {
-      if (
-        gameboard[winConditions[i][0]] != undefined &&
-        gameboard[winConditions[i][1]] != undefined &&
-        gameboard[winConditions[i][2]] != undefined
-      ) {
-        if (
-          gameboard[winConditions[i][0]] === gameboard[winConditions[i][1]] &&
-          gameboard[winConditions[i][1]] === gameboard[winConditions[i][2]]
-        ) {
-          return true;
+      let a = gameboard[winConditions[i][0]];
+      let b = gameboard[winConditions[i][1]];
+      let c = gameboard[winConditions[i][2]];
+      if (a != undefined && b != undefined && c != undefined) {
+        if (a === b && b === c) {
+          roundWon = true;
+          return roundWon;
         }
       }
     }
+
+    if (!gameboard.includes(undefined) && roundWon === false) return 'TIE';
   };
 
-  return { gameboard, updateGameboard, checkWinner };
+  return {
+    gameboard,
+    updateGameboard,
+    checkWinner,
+    clearGameboard,
+  };
 })();
 
 const displayController = (() => {
   const fields = document.querySelectorAll('.field');
   const result = document.querySelector('.result');
   const turn = document.querySelector('.turn');
+  const xscore = document.querySelector('.x-score');
+  const oscore = document.querySelector('.o-score');
   const resetBtn = document.querySelector('.reset-btn');
+  let currentPlayer = playerX.sign;
+  let activeGame = false;
 
   function startGame() {
     fields.forEach((field) => field.addEventListener('click', fieldClicked));
+    turn.textContent = `${currentPlayer}'s turn`;
+    activeGame = !activeGame;
     resetBtn.addEventListener('click', restartGame);
   }
 
   function fieldClicked(e) {
-    e.target.textContent = player.sign;
+    e.target.textContent = currentPlayer;
+    turn.textContent = `${currentPlayer}'s turn`;
     e.target.removeEventListener('click', fieldClicked);
     game.updateGameboard(e.target.dataset.index, e.target.textContent);
-    if (game.checkWinner() === true) showResult();
-    changeSign();
+    if (game.checkWinner()) showResult();
+    if (activeGame) changePlayer();
   }
 
-  function changeSign() {
-    player.sign === 'X' ? (player.sign = 'O') : (player.sign = 'X');
-    turn.textContent = `${player.sign}'s turn`;
+  function changePlayer() {
+    currentPlayer === playerX.sign
+      ? (currentPlayer = playerO.sign)
+      : (currentPlayer = playerX.sign);
   }
 
   function showResult() {
-    result.textContent = `${player.sign} is a winner.`;
-    turn.textContent = '';
+    result.textContent =
+      game.checkWinner() === true ? `${currentPlayer} wins` : 'TIE';
+    currentPlayer === 'X' ? playerX.addWins() : playerO.addWins();
+    xscore.textContent = playerX.getWins();
+    oscore.textContent = playerO.getWins();
     fields.forEach((field) => field.removeEventListener('click', fieldClicked));
+    turn.textContent = '';
+    activeGame = !activeGame;
   }
 
   function restartGame() {
-    location.reload();
+    fields.forEach((field) => (field.textContent = ''));
+    changePlayer();
+    turn.textContent = currentPlayer;
+    result.textContent = '';
+    game.clearGameboard();
+    startGame();
   }
 
   startGame();
