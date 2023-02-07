@@ -1,20 +1,25 @@
 'use strict';
-const Player = (playerName, playerSign) => {
-  const name = playerName;
+const Player = (playerSign) => {
   const sign = playerSign;
   let wins = 0;
 
   const getWins = () => wins;
   const addWins = () => wins++;
+  const makeMove = () => {
+    const rnd = Math.floor(Math.random() * game.gameboard.length);
+    if (game.gameboard[rnd] == '') {
+      displayController.updateCell(rnd);
+    } else makeMove();
+  };
 
-  return { name, sign, getWins, addWins };
+  return { sign, getWins, addWins, makeMove };
 };
 
-const playerX = Player('Dawid', 'X');
-const playerO = Player('CPU', 'O');
+const human = Player('X');
+const ai = Player('O');
 
 const game = (() => {
-  const gameboard = new Array(9);
+  const gameboard = ['', '', '', '', '', '', '', '', ''];
   const winConditions = [
     [0, 1, 2],
     [3, 4, 5],
@@ -28,7 +33,7 @@ const game = (() => {
 
   const updateGameboard = (index, sign) => (gameboard[index] = sign);
 
-  const clearGameboard = () => gameboard.fill(undefined);
+  const clearGameboard = () => gameboard.fill('');
 
   const checkWinner = () => {
     let roundWon = false;
@@ -36,7 +41,7 @@ const game = (() => {
       let a = gameboard[winConditions[i][0]];
       let b = gameboard[winConditions[i][1]];
       let c = gameboard[winConditions[i][2]];
-      if (a != undefined && b != undefined && c != undefined) {
+      if (a != '' && b != '' && c != '') {
         if (a === b && b === c) {
           roundWon = true;
         }
@@ -45,9 +50,9 @@ const game = (() => {
 
     if (roundWon) {
       return true;
-    } else if (!gameboard.includes(undefined) && roundWon === false) {
+    } else if (!gameboard.includes('')) {
       return 'TIE';
-    } else return false;
+    } else displayController.changePlayer();
   };
 
   return {
@@ -68,16 +73,8 @@ const displayController = (() => {
   const resetBtn = document.querySelector('.reset-btn');
   const startBtn = document.querySelector('.start-btn');
 
-  let currentPlayer = playerX.sign;
+  let currentPlayer = human.sign;
   let running = false;
-  /*   function setActive(e) {
-    const clickedOption = e.target;
-    const otherOption = [...settings].filter(
-      (setting) => setting !== clickedOption
-    );
-    otherOption.forEach((option) => option.classList.remove('active'));
-    clickedOption.classList.add('active');
-  } */
 
   function startGame() {
     cells.forEach((cell) => cell.addEventListener('click', cellClicked));
@@ -88,30 +85,30 @@ const displayController = (() => {
 
   function cellClicked(e) {
     const cellIndex = e.target.getAttribute('cell-index');
-    if (game.gameboard[cellIndex] != undefined || !running) return;
-    updateCell(e.target, cellIndex);
-    if (!game.checkWinner()) changePlayer();
-    else showResult(game.checkWinner());
+    if (game.gameboard[cellIndex] != '' || !running) return;
+    updateCell(cellIndex);
+    if (currentPlayer == ai.sign) ai.makeMove();
   }
 
-  function updateCell(cell, index) {
+  function updateCell(index) {
     game.updateGameboard(index, currentPlayer);
-    cell.textContent = currentPlayer;
+    cells[index].textContent = currentPlayer;
+    if (game.checkWinner()) showResult(game.checkWinner());
   }
 
   function changePlayer() {
-    currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
+    currentPlayer = currentPlayer == human.sign ? ai.sign : human.sign;
     turn.textContent = `${currentPlayer}'s turn`;
   }
 
   function updateScore(gameResult) {
     if (gameResult == 'TIE') return;
-    currentPlayer === 'X' ? playerX.addWins() : playerO.addWins();
+    currentPlayer === 'X' ? human.addWins() : ai.addWins();
   }
 
   function showScore() {
-    xscore.textContent = playerX.getWins();
-    oscore.textContent = playerO.getWins();
+    xscore.textContent = human.getWins();
+    oscore.textContent = ai.getWins();
   }
 
   function showResult(gameResult) {
@@ -124,7 +121,6 @@ const displayController = (() => {
 
   function restartGame() {
     cells.forEach((cell) => (cell.textContent = ''));
-    changePlayer();
     turn.textContent = currentPlayer;
     result.textContent = '';
     game.clearGameboard();
@@ -132,4 +128,9 @@ const displayController = (() => {
   }
 
   startGame();
+
+  return {
+    changePlayer,
+    updateCell,
+  };
 })();
