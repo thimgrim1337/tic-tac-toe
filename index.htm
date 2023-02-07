@@ -14,7 +14,7 @@
     <title>Tic Tac Toe</title>
   </head>
   <body>
-    <div class="wrapper">
+    <div class="game">
       <h1>Tic Tac Toe</h1>
       <div class="scoreboard">
         <h2>Scoreboard</h2>
@@ -24,23 +24,38 @@
         </div>
       </div>
       <div class="gameboard">
-        <div class="fields">
-          <div class="field lined thick" data-index="0"></div>
-          <div class="field lined thick" data-index="1"></div>
-          <div class="field lined thick" data-index="2"></div>
-          <div class="field lined thick" data-index="3"></div>
-          <div class="field lined thick" data-index="4"></div>
-          <div class="field lined thick" data-index="5"></div>
-          <div class="field lined thick" data-index="6"></div>
-          <div class="field lined thick" data-index="7"></div>
-          <div class="field lined thick" data-index="8"></div>
+        <div class="cells">
+          <div class="cell lined thick" cell-index="0"></div>
+          <div class="cell lined thick" cell-index="1"></div>
+          <div class="cell lined thick" cell-index="2"></div>
+          <div class="cell lined thick" cell-index="3"></div>
+          <div class="cell lined thick" cell-index="4"></div>
+          <div class="cell lined thick" cell-index="5"></div>
+          <div class="cell lined thick" cell-index="6"></div>
+          <div class="cell lined thick" cell-index="7"></div>
+          <div class="cell lined thick" cell-index="8"></div>
         </div>
         <div class="controls">
           <p class="turn"></p>
           <p class="result"></p>
-          <button class="reset-btn lined thick">reset</button>
+          <button class="reset-btn btn lined thick">reset</button>
         </div>
       </div>
+    </div>
+    <div class="settings">
+      <h1>Tic Tac Toe</h1>
+      <h2>Choose number of players</h2>
+      <div class="player-1 lined thick">
+        <img src="img/controller.svg" alt="controller" />
+        <img src="img/desktop-classic.svg" alt="computer" />
+        <h2>Player vs CPU</h2>
+      </div>
+      <div class="player-2 lined thick">
+        <img src="img/controller.svg" alt="controller" />
+        <img src="img/controller.svg" alt="controller" />
+        <h2>Player vs Player</h2>
+      </div>
+      <button class="start-btn btn lined thick">start</button>
     </div>
     <script src="main.js"></script>
   </body>

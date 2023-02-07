@@ -13,7 +13,7 @@ body {
   background-size: cover;
 }
 
-.wrapper {
+.game {
   display: grid;
   grid-template-rows: auto auto 1fr;
   gap: 1rem;
@@ -29,7 +29,7 @@ h1 {
   text-align: center;
 }
 
-.fields {
+.cells {
   width: 500px;
   height: 500px;
   margin-bottom: 1rem;
@@ -38,7 +38,7 @@ h1 {
   grid-template-rows: repeat(3, 1fr);
 }
 
-.field {
+.cell {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -55,17 +55,14 @@ h1 {
   color: red;
 }
 
-.controls button {
+.btn {
   background: transparent;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem 1rem;
   font-size: 1.5rem;
   text-transform: uppercase;
   font-family: 'Permanent Marker', cursive;
   color: #fff;
-}
-
-.controls button:hover {
-  box-shadow: 2px 8px 4px -6px hsla(0, 0%, 0%, 0.3);
+  cursor: pointer;
 }
 
 .score {
@@ -81,6 +78,56 @@ h1 {
   border-bottom-left-radius: 15px 255px;
 }
 
+.lined.thick.active {
+  border-color: red;
+}
+
 .red {
   color: red;
+}
+
+.player-1:hover,
+.player-2:hover,
+.btn:hover {
+  color: red;
+}
+
+/* Settings */
+.settings {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  gap: 5rem;
+  padding: 1rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  color: #fff;
+}
+
+.settings h1,
+.settings h2 {
+  grid-column: 1 / -1;
+}
+
+.settings img {
+  width: 76px;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(1deg) brightness(102%)
+    contrast(102%);
+}
+
+.player-1,
+.player-2 {
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+}
+
+.start-btn {
+  grid-column: 1 / -1;
 }

@@ -26,9 +26,7 @@ const game = (() => {
     [2, 4, 6],
   ];
 
-  const updateGameboard = (index, sign) => {
-    gameboard[index] = sign;
-  };
+  const updateGameboard = (index, sign) => (gameboard[index] = sign);
 
   const clearGameboard = () => gameboard.fill(undefined);
 
@@ -41,12 +39,15 @@ const game = (() => {
       if (a != undefined && b != undefined && c != undefined) {
         if (a === b && b === c) {
           roundWon = true;
-          return roundWon;
         }
       }
     }
 
-    if (!gameboard.includes(undefined) && roundWon === false) return 'TIE';
+    if (roundWon) {
+      return true;
+    } else if (!gameboard.includes(undefined) && roundWon === false) {
+      return 'TIE';
+    } else return false;
   };
 
   return {
@@ -58,50 +59,71 @@ const game = (() => {
 })();
 
 const displayController = (() => {
-  const fields = document.querySelectorAll('.field');
+  const cells = document.querySelectorAll('.cell');
   const result = document.querySelector('.result');
   const turn = document.querySelector('.turn');
   const xscore = document.querySelector('.x-score');
   const oscore = document.querySelector('.o-score');
+  const settings = document.querySelectorAll('.settings div');
   const resetBtn = document.querySelector('.reset-btn');
+  const startBtn = document.querySelector('.start-btn');
+
   let currentPlayer = playerX.sign;
-  let activeGame = false;
+  let running = false;
+  /*   function setActive(e) {
+    const clickedOption = e.target;
+    const otherOption = [...settings].filter(
+      (setting) => setting !== clickedOption
+    );
+    otherOption.forEach((option) => option.classList.remove('active'));
+    clickedOption.classList.add('active');
+  } */
 
   function startGame() {
-    fields.forEach((field) => field.addEventListener('click', fieldClicked));
-    turn.textContent = `${currentPlayer}'s turn`;
-    activeGame = !activeGame;
+    cells.forEach((cell) => cell.addEventListener('click', cellClicked));
     resetBtn.addEventListener('click', restartGame);
+    turn.textContent = `${currentPlayer}'s turn`;
+    running = true;
   }
 
-  function fieldClicked(e) {
-    e.target.textContent = currentPlayer;
-    turn.textContent = `${currentPlayer}'s turn`;
-    e.target.removeEventListener('click', fieldClicked);
-    game.updateGameboard(e.target.dataset.index, e.target.textContent);
-    if (game.checkWinner()) showResult();
-    if (activeGame) changePlayer();
+  function cellClicked(e) {
+    const cellIndex = e.target.getAttribute('cell-index');
+    if (game.gameboard[cellIndex] != undefined || !running) return;
+    updateCell(e.target, cellIndex);
+    if (!game.checkWinner()) changePlayer();
+    else showResult(game.checkWinner());
+  }
+
+  function updateCell(cell, index) {
+    game.updateGameboard(index, currentPlayer);
+    cell.textContent = currentPlayer;
   }
 
   function changePlayer() {
-    currentPlayer === playerX.sign
-      ? (currentPlayer = playerO.sign)
-      : (currentPlayer = playerX.sign);
+    currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
+    turn.textContent = `${currentPlayer}'s turn`;
   }
 
-  function showResult() {
-    result.textContent =
-      game.checkWinner() === true ? `${currentPlayer} wins` : 'TIE';
+  function updateScore(gameResult) {
+    if (gameResult == 'TIE') return;
     currentPlayer === 'X' ? playerX.addWins() : playerO.addWins();
+  }
+
+  function showScore() {
     xscore.textContent = playerX.getWins();
     oscore.textContent = playerO.getWins();
-    fields.forEach((field) => field.removeEventListener('click', fieldClicked));
+  }
+
+  function showResult(gameResult) {
+    updateScore(gameResult);
+    showScore();
+    result.textContent = gameResult == 'TIE' ? 'TIE' : `${currentPlayer} wins`;
     turn.textContent = '';
-    activeGame = !activeGame;
+    running = false;
   }
 
   function restartGame() {
-    fields.forEach((field) => (field.textContent = ''));
+    cells.forEach((cell) => (cell.textContent = ''));
     changePlayer();
     turn.textContent = currentPlayer;
     result.textContent = '';
