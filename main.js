@@ -10,8 +10,31 @@ const Player = (sign) => {
   return { getSign, getWins, setWins };
 };
 
-const minimaxAiLogic = (() => {
+const minimaxAiLogic = ((aiMode) => {
+  let aiPrec = aiMode;
+  const setAiPrec = (aiMode) => (aiPrec = aiMode);
+  const getAiPrec = () => aiPrec;
+
+  const chooseField = () => {
+    const value = Math.floor(Math.random() * (100 + 1));
+    console.log(value);
+
+    let choice = null;
+    if (value <= aiPrec) {
+      choice = bestMove();
+    } else {
+      const availSpots = gameBoard.getAvailMoves();
+      let move = Math.floor(Math.random() * availSpots.length);
+      choice = availSpots[move];
+    }
+    return choice;
+  };
+
   const bestMove = () => {
+    console.log(
+      minimax(gameBoard.getBoard(), gameController.getAiPlayer().getSign())
+        .index
+    );
     return minimax(gameBoard.getBoard(), gameController.getAiPlayer().getSign())
       .index;
   };
@@ -61,8 +84,9 @@ const minimaxAiLogic = (() => {
 
       moves.push(move);
     }
+
     let bestMove;
-    if (player === gameController.getAiPlayer()) {
+    if (player === gameController.getAiPlayer().getSign()) {
       var bestScore = -10000;
       for (let i = 0; i < moves.length; i++) {
         if (moves[i].score > bestScore) {
@@ -83,9 +107,12 @@ const minimaxAiLogic = (() => {
   };
 
   return {
+    chooseField,
     bestMove,
+    getAiPrec,
+    setAiPrec,
   };
-})();
+})(100);
 
 const gameBoard = (() => {
   let _board = Array.from(Array(9).keys());
@@ -129,10 +156,8 @@ const gameController = (() => {
 
   const getWinCondition = (index) => winConditions[index];
 
-  const checkWinner = (player) => {
-    let plays = gameBoard
-      .getBoard()
-      .reduce((a, e, i) => (e === player ? a.concat(i) : a), []);
+  const checkWinner = (board, player) => {
+    let plays = board.reduce((a, e, i) => (e === player ? a.concat(i) : a), []);
     let gameWon = null;
     for (let [index, win] of winConditions.entries()) {
       if (win.every((elem) => plays.indexOf(elem) > -1)) {
@@ -183,17 +208,17 @@ const displayController = (() => {
     if (typeof gameBoard.getBoard()[cellIndex] != 'number') return;
     turn(cellIndex, human.getSign());
     if (
-      !gameController.checkWinner(human.getSign()) &&
+      !gameController.checkWinner(gameBoard.getBoard(), human.getSign()) &&
       !gameController.checkTie()
     )
-      turn(minimaxAiLogic.bestMove(), ai.getSign());
+      turn(minimaxAiLogic.chooseField(), ai.getSign());
   }
 
   function turn(index, player) {
     gameBoard.setField(index, player);
     cells[index].textContent = player;
 
-    let gameResult = gameController.checkWinner(player);
+    let gameResult = gameController.checkWinner(gameBoard.getBoard(), player);
 
     if (gameResult || gameController.checkTie()) endGame(gameResult);
   }

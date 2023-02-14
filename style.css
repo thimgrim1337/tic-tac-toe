@@ -45,6 +45,11 @@ h1 {
   font-size: 5rem;
 }
 
+.cell:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: 0.3s;
+}
+
 .controls > * {
   margin-bottom: 1.5rem;
   font-size: 1.3rem;
