@@ -1,71 +1,37 @@
 'use strict';
-/* const Player = (playerSign) => {
-  const sign = playerSign;
-  let wins = 0;
+const Player = (sign) => {
+  const _sign = sign;
+  let _wins = 0;
 
-  const getWins = () => wins;
-  const addWins = () => wins++;
+  const getSign = () => _sign;
+  const setWins = () => _wins++;
+  const getWins = () => _wins;
 
-  const bestMove = () => {
-    return minimax(game.gameboard, sign);
-  };
-
-  return { sign, getWins, addWins, bestMove };
+  return { getSign, getWins, setWins };
 };
- */
 
-const gameController = (() => {
-  const human = 'O';
-  const ai = 'X';
-  const origBoard = Array.from(Array(9).keys());
-  const winConditions = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-
-  const updateGameboard = (index, sign) => (origBoard[index] = sign);
-
-  const clearGameboard = () => origBoard.fill('');
-
-  const checkWinner = (board, player) => {
-    let plays = board.reduce((a, e, i) => (e === player ? a.concat(i) : a), []);
-    let gameWon = null;
-    for (let [index, win] of winConditions.entries()) {
-      if (win.every((elem) => plays.indexOf(elem) > -1)) {
-        gameWon = { index: index, player: player };
-        break;
-      }
-    }
-    return gameWon;
-  };
-
-  const checkTie = () => {
-    if (availableMoves().length == 0) {
-      return true;
-    }
-    return false;
-  };
-
-  const availableMoves = () => {
-    return origBoard.filter((s) => typeof s == 'number');
-  };
-
+const minimaxAiLogic = (() => {
   const bestMove = () => {
-    return minimax(origBoard, ai).index;
+    return minimax(gameBoard.getBoard(), gameController.getAiPlayer().getSign())
+      .index;
   };
 
-  function minimax(newBoard, player) {
-    let availSpots = availableMoves();
+  const minimax = (newBoard, player) => {
+    let availSpots = gameBoard.getAvailMoves();
 
-    if (checkWinner(newBoard, human)) {
+    if (
+      gameController.checkWinner(
+        newBoard,
+        gameController.getHumanPlayer().getSign()
+      )
+    ) {
       return { score: -10 };
-    } else if (checkWinner(newBoard, ai)) {
+    } else if (
+      gameController.checkWinner(
+        newBoard,
+        gameController.getAiPlayer().getSign()
+      )
+    ) {
       return { score: 10 };
     } else if (availSpots.length === 0) {
       return { score: 0 };
@@ -77,11 +43,17 @@ const gameController = (() => {
       move.index = newBoard[availSpots[i]];
       newBoard[availSpots[i]] = player;
 
-      if (player == ai) {
-        const result = minimax(newBoard, human);
+      if (player == gameController.getAiPlayer().getSign()) {
+        const result = minimax(
+          newBoard,
+          gameController.getHumanPlayer().getSign()
+        );
         move.score = result.score;
       } else {
-        const result = minimax(newBoard, ai);
+        const result = minimax(
+          newBoard,
+          gameController.getAiPlayer().getSign()
+        );
         move.score = result.score;
       }
 
@@ -89,9 +61,8 @@ const gameController = (() => {
 
       moves.push(move);
     }
-
     let bestMove;
-    if (player === ai) {
+    if (player === gameController.getAiPlayer()) {
       var bestScore = -10000;
       for (let i = 0; i < moves.length; i++) {
         if (moves[i].score > bestScore) {
@@ -108,20 +79,83 @@ const gameController = (() => {
         }
       }
     }
-
     return moves[bestMove];
-  }
+  };
 
   return {
-    origBoard,
-    winConditions,
-    updateGameboard,
+    bestMove,
+  };
+})();
+
+const gameBoard = (() => {
+  let _board = Array.from(Array(9).keys());
+
+  const getBoard = () => _board;
+  const setField = (index, player) => (_board[index] = player);
+
+  const clearGameboard = () => {
+    for (let i = 0; i < _board.length; i++) _board[i] = i;
+  };
+
+  const getAvailMoves = () => {
+    return _board.filter((s) => typeof s == 'number');
+  };
+
+  return {
+    getBoard,
+    setField,
+    clearGameboard,
+    getAvailMoves,
+  };
+})();
+
+const gameController = (() => {
+  const _human = Player('X');
+  const _ai = Player('O');
+
+  const getHumanPlayer = () => _human;
+  const getAiPlayer = () => _ai;
+
+  const winConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
+  const getWinCondition = (index) => winConditions[index];
+
+  const checkWinner = (player) => {
+    let plays = gameBoard
+      .getBoard()
+      .reduce((a, e, i) => (e === player ? a.concat(i) : a), []);
+    let gameWon = null;
+    for (let [index, win] of winConditions.entries()) {
+      if (win.every((elem) => plays.indexOf(elem) > -1)) {
+        gameWon = { index: index, player: player };
+        break;
+      }
+    }
+    return gameWon;
+  };
+
+  const checkTie = () => {
+    if (gameBoard.getAvailMoves().length == 0) {
+      return true;
+    }
+    return false;
+  };
+
+  return {
+    getHumanPlayer,
+    getAiPlayer,
     checkWinner,
     checkTie,
-    clearGameboard,
-    human,
-    ai,
-    bestMove,
+    getWinCondition,
   };
 })();
 
@@ -135,63 +169,54 @@ const displayController = (() => {
   const resetBtn = document.querySelector('.reset-btn');
   const startBtn = document.querySelector('.start-btn');
 
-  let running = false;
+  const human = gameController.getHumanPlayer();
+  const ai = gameController.getAiPlayer();
 
   function startGame() {
     cells.forEach((cell) => cell.addEventListener('click', cellClicked));
     resetBtn.addEventListener('click', restartGame);
     // turnDisplay.textContent = `${currentPlayer}'s turn`;
-    running = true;
   }
 
   function cellClicked(e) {
     const cellIndex = e.target.getAttribute('cell-index');
+    if (typeof gameBoard.getBoard()[cellIndex] != 'number') return;
+    turn(cellIndex, human.getSign());
     if (
-      typeof gameController.origBoard[cellIndex] != 'number' ||
-      running != true
-    )
-      return;
-    turn(cellIndex, gameController.human);
-    if (
-      !gameController.checkWinner(
-        gameController.origBoard,
-        gameController.human
-      ) &&
+      !gameController.checkWinner(human.getSign()) &&
       !gameController.checkTie()
     )
-      turn(gameController.bestMove(), gameController.ai);
+      turn(minimaxAiLogic.bestMove(), ai.getSign());
   }
 
   function turn(index, player) {
-    gameController.updateGameboard(index, player);
+    gameBoard.setField(index, player);
     cells[index].textContent = player;
 
-    let gameResult = gameController.checkWinner(
-      gameController.origBoard,
-      player
-    );
-    if (gameResult) endGame(gameResult);
+    let gameResult = gameController.checkWinner(player);
+
+    if (gameResult || gameController.checkTie()) endGame(gameResult);
   }
 
   function endGame(gameResult) {
-    running = false;
     showResult(gameResult);
-    // updateScore(gameResult);
-    // showScore();
+
     cells.forEach((cell) => cell.removeEventListener('click', cellClicked));
   }
 
   function showResult(gameResult) {
-    if (gameResult == 'TIE') {
+    if (gameController.checkTie()) {
       showWinner('TIE GAME!');
       return;
     }
-    for (let index of gameController.winConditions[gameResult.index]) {
+
+    for (let index of gameController.getWinCondition(gameResult.index)) {
       document.querySelector(`[cell-index="${index}"]`).style.color = 'red';
     }
-    showWinner(
-      gameResult.player == gameController.human ? 'You win!' : 'You lost!'
-    );
+
+    showWinner(gameResult.player == human.getSign() ? 'You win!' : 'You lost!');
+    updateScore(gameResult);
+    showScore();
   }
 
   function showWinner(winner) {
@@ -200,7 +225,7 @@ const displayController = (() => {
   }
 
   function updateScore(gameResult) {
-    gameResult.player === 'X' ? human.addWins() : ai.addWins();
+    gameResult.player === human.getSign() ? human.setWins() : ai.setWins();
   }
 
   function showScore() {
@@ -213,9 +238,8 @@ const displayController = (() => {
       cell.textContent = '';
       cell.style.color = '#fff';
     });
-    turnDisplay.textContent = currentPlayer;
     resultDispay.textContent = '';
-    gameController.clearGameboard();
+    gameBoard.clearGameboard();
     startGame();
   }
 
