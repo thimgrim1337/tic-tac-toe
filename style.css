@@ -14,7 +14,7 @@ body {
 }
 
 .game {
-  display: grid;
+  display: none;
   grid-template-rows: auto auto 1fr;
   gap: 1rem;
   justify-items: center;
@@ -99,7 +99,7 @@ h1 {
 
 /* Settings */
 .settings {
-  display: none;
+  display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto 1fr auto;
   justify-items: center;
@@ -135,4 +135,8 @@ h1 {
 
 .start-btn {
   grid-column: 1 / -1;
+}
+
+.active {
+  border-color: red;
 }

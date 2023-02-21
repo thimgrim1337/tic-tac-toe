@@ -137,11 +137,11 @@ const gameBoard = (() => {
 })();
 
 const gameController = (() => {
-  const _human = Player('X');
-  const _ai = Player('O');
+  const _player1 = Player('X');
+  const _player2 = Player('O');
 
-  const getHumanPlayer = () => _human;
-  const getAiPlayer = () => _ai;
+  const getHumanPlayer = () => _player1;
+  const getAiPlayer = () => _player2;
 
   const winConditions = [
     [0, 1, 2],
@@ -193,25 +193,48 @@ const displayController = (() => {
   const settings = document.querySelectorAll('.settings div');
   const resetBtn = document.querySelector('.reset-btn');
   const startBtn = document.querySelector('.start-btn');
+  const menuBtn = document.querySelector('.menu-btn');
 
   const human = gameController.getHumanPlayer();
   const ai = gameController.getAiPlayer();
 
+  let vsPlayer = undefined;
+  let currentPlayer = human.getSign();
+
+  settings.forEach((setting) => setting.addEventListener('click', setActive));
+
+  function setActive() {
+    settings.forEach((setting) => setting.classList.remove('active'));
+    this.classList.add('active');
+  }
+
   function startGame() {
-    cells.forEach((cell) => cell.addEventListener('click', cellClicked));
-    resetBtn.addEventListener('click', restartGame);
-    // turnDisplay.textContent = `${currentPlayer}'s turn`;
+    settings.forEach((setting) => {
+      if (!setting.classList.contains('active')) return;
+      else {
+        vsPlayer = setting.dataset.player;
+        document.querySelector('.settings').style.display = 'none';
+        document.querySelector('.game').style.display = 'grid';
+        cells.forEach((cell) => cell.addEventListener('click', cellClicked));
+        resetBtn.addEventListener('click', restartGame);
+      }
+    });
+    turnDisplay.textContent = `${currentPlayer}'s turn`;
   }
 
   function cellClicked(e) {
     const cellIndex = e.target.getAttribute('cell-index');
     if (typeof gameBoard.getBoard()[cellIndex] != 'number') return;
-    turn(cellIndex, human.getSign());
-    if (
-      !gameController.checkWinner(gameBoard.getBoard(), human.getSign()) &&
-      !gameController.checkTie()
-    )
+    turn(cellIndex, currentPlayer);
+    if (vsPlayer == 1) {
+      changePlayer();
+    } else {
+      if (
+        !gameController.checkWinner(gameBoard.getBoard(), human.getSign()) &&
+        !gameController.checkTie()
+      );
       turn(minimaxAiLogic.chooseField(), ai.getSign());
+    }
   }
 
   function turn(index, player) {
@@ -221,6 +244,12 @@ const displayController = (() => {
     let gameResult = gameController.checkWinner(gameBoard.getBoard(), player);
 
     if (gameResult || gameController.checkTie()) endGame(gameResult);
+  }
+
+  function changePlayer() {
+    currentPlayer =
+      currentPlayer == human.getSign() ? ai.getSign() : human.getSign();
+    turnDisplay.textContent = `${currentPlayer}'s turn`;
   }
 
   function endGame(gameResult) {
@@ -239,7 +268,7 @@ const displayController = (() => {
       document.querySelector(`[cell-index="${index}"]`).style.color = 'red';
     }
 
-    showWinner(gameResult.player == human.getSign() ? 'You win!' : 'You lost!');
+    showWinner(gameResult.player == human.getSign() ? 'X wins' : 'O wins');
     updateScore(gameResult);
     showScore();
   }
@@ -268,5 +297,8 @@ const displayController = (() => {
     startGame();
   }
 
-  startGame();
+  startBtn.addEventListener('click', startGame);
+  menuBtn.addEventListener('click', () => {
+    location.reload();
+  });
 })();
